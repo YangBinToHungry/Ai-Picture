@@ -140,7 +140,7 @@
 <!--            </plugin>-->
 <!--        </plugins>-->
 <!--    </build>-->
-
+    <!-- maven打包配置 -->
     <build>
         <plugins>
             <plugin>
