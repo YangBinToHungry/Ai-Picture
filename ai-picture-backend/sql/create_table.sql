@@ -4,6 +4,7 @@ create database if not exists ai_picture;
 -- 切换库
 use ai_picture;
 
+
 -- 用户表
 create table if not exists user
 (
@@ -21,6 +22,7 @@ create table if not exists user
     UNIQUE KEY uk_userAccount (userAccount),
     INDEX idx_userName (userName)
 ) comment '用户' collate = utf8mb4_unicode_ci;
+
 
 -- 图片表
 create table if not exists picture
@@ -47,21 +49,18 @@ create table if not exists picture
     INDEX idx_tags (tags),                 -- 提升基于标签的查询性能
     INDEX idx_userId (userId)              -- 提升基于用户 ID 的查询性能
 ) comment '图片' collate = utf8mb4_unicode_ci;
-
-
+-- 图片添加审核信息
 ALTER TABLE picture
     -- 添加新列
     ADD COLUMN reviewStatus INT DEFAULT 0 NOT NULL COMMENT '审核状态：0-待审核; 1-通过; 2-拒绝',
     ADD COLUMN reviewMessage VARCHAR(512) NULL COMMENT '审核信息',
     ADD COLUMN reviewerId BIGINT NULL COMMENT '审核人 ID',
     ADD COLUMN reviewTime DATETIME NULL COMMENT '审核时间';
-
 -- 创建基于 reviewStatus 列的索引
 CREATE INDEX idx_reviewStatus ON picture (reviewStatus);
-
 ALTER TABLE picture
-    -- 添加新列
-    ADD COLUMN thumbnailUrl varchar(512) NULL COMMENT '缩略图 url';
+-- 添加新列
+ADD COLUMN thumbnailUrl varchar(512) NULL COMMENT '缩略图 url';
 
 
 -- 空间表
@@ -84,23 +83,20 @@ create table if not exists space
     index idx_spaceName (spaceName),  -- 提升基于空间名称的查询效率
     index idx_spaceLevel (spaceLevel) -- 提升按空间级别查询的效率
 ) comment '空间' collate = utf8mb4_unicode_ci;
-
 -- 添加新列
 ALTER TABLE picture
     ADD COLUMN spaceId bigint  null comment '空间 id（为空表示公共空间）';
-
 -- 创建索引
 CREATE INDEX idx_spaceId ON picture (spaceId);
-
 -- 添加新列
 ALTER TABLE picture
     ADD COLUMN picColor varchar(16) null comment '图片主色调';
-
 -- 支持空间类型，添加新列
 ALTER TABLE space
     ADD COLUMN spaceType int default 0 not null comment '空间类型：0-私有 1-团队';
-
+-- 创建索引
 CREATE INDEX idx_spaceType ON space (spaceType);
+
 
 -- 空间成员表
 create table if not exists space_user
