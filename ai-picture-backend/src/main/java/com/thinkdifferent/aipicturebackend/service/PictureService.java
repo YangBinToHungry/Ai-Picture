@@ -2,10 +2,7 @@ package com.thinkdifferent.aipicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.thinkdifferent.aipicturebackend.model.dto.picture.PictureQueryRequest;
-import com.thinkdifferent.aipicturebackend.model.dto.picture.PictureReviewRequest;
-import com.thinkdifferent.aipicturebackend.model.dto.picture.PictureUploadByBatchRequest;
-import com.thinkdifferent.aipicturebackend.model.dto.picture.PictureUploadRequest;
+import com.thinkdifferent.aipicturebackend.model.dto.picture.*;
 import com.thinkdifferent.aipicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.thinkdifferent.aipicturebackend.model.entity.User;
@@ -89,9 +86,30 @@ public interface PictureService extends IService<Picture> {
     int uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 
     /**
-     * 删除图片
+     * 清除腾讯服务器图片
      * @param oldPicture
      */
     @Async
     void clearPictureFile(Picture oldPicture);
+
+    /**
+     * 检查图片空间权限
+     * @param loginUser
+     * @param picture
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 删除图片
+     * @param pictureId
+     * @param loginUser
+     */
+    void deletePicture(long pictureId, User loginUser);
+
+    /**
+     * 编辑图片
+     * @param pictureEditRequest
+     * @param loginUser
+     */
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 }
