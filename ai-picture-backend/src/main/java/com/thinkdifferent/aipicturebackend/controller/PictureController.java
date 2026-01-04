@@ -15,10 +15,12 @@ import com.thinkdifferent.aipicturebackend.exception.ErrorCode;
 import com.thinkdifferent.aipicturebackend.exception.ThrowUtils;
 import com.thinkdifferent.aipicturebackend.model.dto.picture.*;
 import com.thinkdifferent.aipicturebackend.model.entity.Picture;
+import com.thinkdifferent.aipicturebackend.model.entity.Space;
 import com.thinkdifferent.aipicturebackend.model.entity.User;
 import com.thinkdifferent.aipicturebackend.model.enums.PictureReviewStatusEnum;
 import com.thinkdifferent.aipicturebackend.model.vo.PictureVO;
 import com.thinkdifferent.aipicturebackend.service.PictureService;
+import com.thinkdifferent.aipicturebackend.service.SpaceService;
 import com.thinkdifferent.aipicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,8 @@ public class PictureController {
     private UserService userService;
     @Resource
     private PictureService pictureService;
+    @Resource
+    private SpaceService spaceService;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder().initialCapacity(1024)
@@ -161,8 +165,7 @@ public class PictureController {
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();
         // 查询数据库
-        Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
-                pictureService.getQueryWrapper(pictureQueryRequest));
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
         return ResultUtils.success(picturePage);
     }
 
@@ -176,8 +179,22 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        // 普通用户默认只能查看已过审的数据
-        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+        // 公开图库
+        if (spaceId == null) {
+            // 普通用户默认只能查看已过审的公开数据
+            pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+            pictureQueryRequest.setNullSpaceId(true);
+        } else {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            if (!loginUser.getId().equals(space.getUserId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+        }
         // 查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryRequest));
@@ -194,7 +211,7 @@ public class PictureController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        pictureService.editPicture(pictureEditRequest,loginUser);
+        pictureService.editPicture(pictureEditRequest, loginUser);
         return ResultUtils.success(true);
     }
 
