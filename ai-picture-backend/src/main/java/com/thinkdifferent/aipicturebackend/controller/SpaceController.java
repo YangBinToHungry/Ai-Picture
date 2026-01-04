@@ -8,19 +8,21 @@ import com.thinkdifferent.aipicturebackend.exception.BusinessException;
 import com.thinkdifferent.aipicturebackend.exception.ErrorCode;
 import com.thinkdifferent.aipicturebackend.exception.ThrowUtils;
 import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceAddRequest;
+import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceLevel;
 import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.thinkdifferent.aipicturebackend.model.entity.Space;
 import com.thinkdifferent.aipicturebackend.model.entity.User;
+import com.thinkdifferent.aipicturebackend.model.enums.SpaceLevelEnum;
 import com.thinkdifferent.aipicturebackend.service.SpaceService;
 import com.thinkdifferent.aipicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/space")
@@ -72,6 +74,23 @@ public class SpaceController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
+
+    /**
+     * 查询空间额度列表信息
+     * @return
+     */
+    @GetMapping("/list/level")
+    public BaseResponse<List<SpaceLevel>> listSpaceLevel() {
+        List<SpaceLevel> spaceLevelList = Arrays.stream(SpaceLevelEnum.values()) // 获取所有枚举
+                .map(spaceLevelEnum -> new SpaceLevel(
+                        spaceLevelEnum.getValue(),
+                        spaceLevelEnum.getText(),
+                        spaceLevelEnum.getMaxCount(),
+                        spaceLevelEnum.getMaxSize()))
+                .collect(Collectors.toList());
+        return ResultUtils.success(spaceLevelList);
+    }
+
 
 
 

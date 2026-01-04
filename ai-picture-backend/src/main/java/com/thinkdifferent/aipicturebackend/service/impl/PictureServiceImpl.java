@@ -14,6 +14,7 @@ import com.thinkdifferent.aipicturebackend.manager.CosManager;
 import com.thinkdifferent.aipicturebackend.manager.upload.FilePictureUpload;
 import com.thinkdifferent.aipicturebackend.manager.upload.PictureUploadTemplate;
 import com.thinkdifferent.aipicturebackend.manager.upload.UrlPictureUpload;
+import com.thinkdifferent.aipicturebackend.mapper.PictureMapper;
 import com.thinkdifferent.aipicturebackend.model.dto.file.UploadPictureResult;
 import com.thinkdifferent.aipicturebackend.model.dto.picture.*;
 import com.thinkdifferent.aipicturebackend.model.entity.Picture;
@@ -23,7 +24,6 @@ import com.thinkdifferent.aipicturebackend.model.enums.PictureReviewStatusEnum;
 import com.thinkdifferent.aipicturebackend.model.vo.PictureVO;
 import com.thinkdifferent.aipicturebackend.model.vo.UserVO;
 import com.thinkdifferent.aipicturebackend.service.PictureService;
-import com.thinkdifferent.aipicturebackend.mapper.PictureMapper;
 import com.thinkdifferent.aipicturebackend.service.SpaceService;
 import com.thinkdifferent.aipicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +34,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +65,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private FilePictureUpload filePictureUpload;
     @Resource
     private UrlPictureUpload urlPictureUpload;
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     /**
      * 图片上传，支持URL
@@ -79,7 +82,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片为空");
         }
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
-        // 校验空间是否存在
+        // 空间权限、额度校验
         Long spaceId = pictureUploadRequest.getSpaceId();
         if (spaceId != null) {
             Space space = spaceService.getById(spaceId);
@@ -87,6 +90,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             // 必须空间创建人（管理员）才能上传
             if (!loginUser.getId().equals(space.getUserId())) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+            // 校验额度
+            if (space.getTotalCount() >= space.getMaxCount()) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "空间条数不足");
+            }
+            if (space.getTotalSize() >= space.getMaxSize()) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "空间大小不足");
             }
         }
         // 用于判断是新增还是更新图片
@@ -155,63 +165,23 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             picture.setId(pictureId);
             picture.setEditTime(new Date());
         }
-        boolean result = this.saveOrUpdate(picture);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+        // 开启事务
+        Long finalSpaceId = spaceId;
+        transactionTemplate.execute(status -> {
+            boolean result = this.saveOrUpdate(picture);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+            if (finalSpaceId != null) {
+                boolean update = spaceService.lambdaUpdate()
+                        .eq(Space::getId, finalSpaceId)
+                        .setSql("totalSize = totalSize + " + picture.getPicSize())
+                        .setSql("totalCount = totalCount + 1")
+                        .update();
+                ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "额度更新失败");
+            }
+            return picture;
+        });
         return PictureVO.objToVo(picture);
     }
-
-
-//    /**
-//     * 图片上传
-//     *
-//     * @param multipartFile
-//     * @param pictureUploadRequest
-//     * @param loginUser
-//     * @return
-//     */
-//    @Override
-//    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, User loginUser) {
-//        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
-//        // 用于判断是新增还是更新图片
-//        Long pictureId = null;
-//        if (pictureUploadRequest != null) {
-//            pictureId = pictureUploadRequest.getId();
-//        }
-//        // 如果是更新图片，需要校验图片是否存在
-//        if (pictureId != null) {
-//            Picture oldPicture = this.getById(pictureId);
-//            ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
-//            // 仅本人或管理员可编辑
-//            if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-//                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-//            }
-//        }
-//        // 上传图片，得到信息
-//        // 按照用户 id 划分目录
-//        String uploadPathPrefix = String.format("public/%s", loginUser.getId());
-//        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, uploadPathPrefix);
-//        // 构造要入库的图片信息
-//        Picture picture = new Picture();
-//        picture.setUrl(uploadPictureResult.getUrl());
-//        picture.setName(uploadPictureResult.getPicName());
-//        picture.setPicSize(uploadPictureResult.getPicSize());
-//        picture.setPicWidth(uploadPictureResult.getPicWidth());
-//        picture.setPicHeight(uploadPictureResult.getPicHeight());
-//        picture.setPicScale(uploadPictureResult.getPicScale());
-//        picture.setPicFormat(uploadPictureResult.getPicFormat());
-//        picture.setUserId(loginUser.getId());
-//        //补充审核参数
-//        fillReviewParams(picture, loginUser);
-//        // 如果 pictureId 不为空，表示更新，否则是新增
-//        if (pictureId != null) {
-//            // 如果是更新，需要补充 id 和编辑时间
-//            picture.setId(pictureId);
-//            picture.setEditTime(new Date());
-//        }
-//        boolean result = this.saveOrUpdate(picture);
-//        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
-//        return PictureVO.objToVo(picture);
-//    }
 
     /**
      * 搜索图片
@@ -511,6 +481,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     /**
      * 删除图片
+     *
      * @param pictureId
      * @param loginUser
      */
@@ -521,11 +492,25 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 判断是否存在
         Picture oldPicture = this.getById(pictureId);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 校验权限
+        // 校验空间权限
         checkPictureAuth(loginUser, oldPicture);
-        // 操作数据库
-        boolean result = this.removeById(pictureId);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        // 开启事务
+        transactionTemplate.execute(status -> {
+            // 操作数据库
+            boolean result = this.removeById(pictureId);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+            // 释放额度
+            Long spaceId = oldPicture.getSpaceId();
+            if (spaceId != null) {
+                boolean update = spaceService.lambdaUpdate()
+                        .eq(Space::getId, spaceId)
+                        .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
+                        .setSql("totalCount = totalCount - 1")
+                        .update();
+                ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "额度更新失败");
+            }
+            return true;
+        });
         // 异步清理文件
         this.clearPictureFile(oldPicture);
     }
