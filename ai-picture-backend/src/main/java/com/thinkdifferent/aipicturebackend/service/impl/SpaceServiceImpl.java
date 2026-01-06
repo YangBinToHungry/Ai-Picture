@@ -1,8 +1,10 @@
 package com.thinkdifferent.aipicturebackend.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.thinkdifferent.aipicturebackend.exception.BusinessException;
 import com.thinkdifferent.aipicturebackend.exception.ErrorCode;
@@ -23,15 +25,19 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
-* @author yangbin
-* @description 针对表【space(空间)】的数据库操作Service实现
-* @createDate 2025-12-31 11:02:05
-*/
+ * @author yangbin
+ * @description 针对表【space(空间)】的数据库操作Service实现
+ * @createDate 2025-12-31 11:02:05
+ */
 @Service
-public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements SpaceService{
+public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements SpaceService {
     @Resource
     private TransactionTemplate transactionTemplate;
     @Resource
@@ -39,6 +45,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
 
     /**
      * 添加空间信息
+     *
      * @param spaceAddRequest
      * @param loginUser
      * @return
@@ -86,6 +93,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
 
     /**
      * 校验空间信息
+     *
      * @param space
      * @param add
      */
@@ -116,6 +124,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
 
     /**
      * 根据空间等级设置空间容量、数量
+     *
      * @param space
      */
     @Override
@@ -136,6 +145,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
 
     /**
      * 空间权限判断
+     *
      * @param loginUser
      * @param space
      */
@@ -149,6 +159,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
 
     /**
      * 获取脱敏后的空间信息
+     *
      * @param space
      * @param request
      * @return
@@ -167,6 +178,12 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
         return spaceVO;
     }
 
+    /**
+     * 查询条件
+     *
+     * @param spaceQueryRequest
+     * @return
+     */
     @Override
     public QueryWrapper<Space> getQueryWrapper(SpaceQueryRequest spaceQueryRequest) {
         QueryWrapper<Space> queryWrapper = new QueryWrapper<>();
@@ -192,7 +209,37 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
         return queryWrapper;
     }
 
-
+    /**
+     * 获得分页后的脱敏信息
+     *
+     * @param spacePage
+     * @param request
+     * @return
+     */
+    @Override
+    public Page<SpaceVO> getSpaceVOPage(Page<Space> spacePage, HttpServletRequest request) {
+        List<Space> spaceList = spacePage.getRecords();
+        Page<SpaceVO> spaceVOPage = new Page<>(spacePage.getCurrent(), spacePage.getSize(), spacePage.getTotal());
+        if (CollUtil.isEmpty(spaceList)) {
+            return spaceVOPage;
+        }
+        // 对象列表 => 封装对象列表
+        List<SpaceVO> spaceVOList = spaceList.stream().map(SpaceVO::objToVo).collect(Collectors.toList());
+        // 1. 关联查询用户信息
+        Set<Long> userIdSet = spaceList.stream().map(Space::getUserId).collect(Collectors.toSet());
+        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream().collect(Collectors.groupingBy(User::getId));
+        // 2. 填充信息
+        spaceVOList.forEach(spaceVO -> {
+            Long userId = spaceVO.getUserId();
+            User user = null;
+            if (userIdUserListMap.containsKey(userId)) {
+                user = userIdUserListMap.get(userId).get(0);
+            }
+            spaceVO.setUser(userService.getUserVO(user));
+        });
+        spaceVOPage.setRecords(spaceVOList);
+        return spaceVOPage;
+    }
 }
 
 

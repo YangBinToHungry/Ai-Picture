@@ -1,6 +1,7 @@
 package com.thinkdifferent.aipicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceAddRequest;
 import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceQueryRequest;
 import com.thinkdifferent.aipicturebackend.model.entity.Space;
@@ -11,38 +12,66 @@ import com.thinkdifferent.aipicturebackend.model.vo.SpaceVO;
 import javax.servlet.http.HttpServletRequest;
 
 /**
-* @author yangbin
-* @description 针对表【space(空间)】的数据库操作Service
-* @createDate 2025-12-31 11:02:05
-*/
+ * @author yangbin
+ * @description 针对表【space(空间)】的数据库操作Service
+ * @createDate 2025-12-31 11:02:05
+ */
 public interface SpaceService extends IService<Space> {
     /**
      * 添加空间信息
+     *
      * @param spaceAddRequest
      * @param loginUser
      * @return
      */
     long addSpace(SpaceAddRequest spaceAddRequest, User loginUser);
+
     /**
      * 校验空间信息
+     *
      * @param space
      * @param add
      */
     void validSpace(Space space, boolean add);
+
     /**
      * 根据空间等级设置空间容量、数量
+     *
      * @param space
      */
     void fillSpaceBySpaceLevel(Space space);
 
     /**
      * 判断空间权限
+     *
      * @param loginUser
      * @param space
      */
     void checkSpaceAuth(User loginUser, Space space);
 
+    /**
+     * 获得脱敏后的空间信息
+     *
+     * @param space
+     * @param request
+     * @return
+     */
     SpaceVO getSpaceVO(Space space, HttpServletRequest request);
 
+    /**
+     * 查询空间信息条件
+     *
+     * @param spaceQueryRequest
+     * @return
+     */
     QueryWrapper<Space> getQueryWrapper(SpaceQueryRequest spaceQueryRequest);
+
+    /**
+     * 查询分页后的脱敏空间信息
+     *
+     * @param spacePage
+     * @param request
+     * @return
+     */
+    Page<SpaceVO> getSpaceVOPage(Page<Space> spacePage, HttpServletRequest request);
 }
