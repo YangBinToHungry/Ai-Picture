@@ -1,14 +1,19 @@
 package com.thinkdifferent.aipicturebackend.service.impl;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.thinkdifferent.aipicturebackend.exception.BusinessException;
 import com.thinkdifferent.aipicturebackend.exception.ErrorCode;
 import com.thinkdifferent.aipicturebackend.exception.ThrowUtils;
 import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceAddRequest;
+import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceQueryRequest;
 import com.thinkdifferent.aipicturebackend.model.entity.Space;
 import com.thinkdifferent.aipicturebackend.model.entity.User;
 import com.thinkdifferent.aipicturebackend.model.enums.SpaceLevelEnum;
+import com.thinkdifferent.aipicturebackend.model.vo.SpaceVO;
+import com.thinkdifferent.aipicturebackend.model.vo.UserVO;
 import com.thinkdifferent.aipicturebackend.service.SpaceService;
 import com.thinkdifferent.aipicturebackend.mapper.SpaceMapper;
 import com.thinkdifferent.aipicturebackend.service.UserService;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**
@@ -31,6 +37,12 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
     @Resource
     private UserService userService;
 
+    /**
+     * 添加空间信息
+     * @param spaceAddRequest
+     * @param loginUser
+     * @return
+     */
     @Override
     public long addSpace(SpaceAddRequest spaceAddRequest, User loginUser) {
         // 在此处将实体类和 DTO 进行转换
@@ -120,6 +132,64 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
                 space.setMaxCount(maxCount);
             }
         }
+    }
+
+    /**
+     * 空间权限判断
+     * @param loginUser
+     * @param space
+     */
+    @Override
+    public void checkSpaceAuth(User loginUser, Space space) {
+        // 仅本人或管理员可编辑
+        if (!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+    }
+
+    /**
+     * 获取脱敏后的空间信息
+     * @param space
+     * @param request
+     * @return
+     */
+    @Override
+    public SpaceVO getSpaceVO(Space space, HttpServletRequest request) {
+        // 对象转封装类
+        SpaceVO spaceVO = SpaceVO.objToVo(space);
+        // 关联查询用户信息
+        Long userId = space.getUserId();
+        if (userId != null && userId > 0) {
+            User user = userService.getById(userId);
+            UserVO userVO = userService.getUserVO(user);
+            spaceVO.setUser(userVO);
+        }
+        return spaceVO;
+    }
+
+    @Override
+    public QueryWrapper<Space> getQueryWrapper(SpaceQueryRequest spaceQueryRequest) {
+        QueryWrapper<Space> queryWrapper = new QueryWrapper<>();
+        if (spaceQueryRequest == null) {
+            return queryWrapper;
+        }
+        // 从对象中取值
+        Long id = spaceQueryRequest.getId();
+        Long userId = spaceQueryRequest.getUserId();
+        String spaceName = spaceQueryRequest.getSpaceName();
+        Integer spaceLevel = spaceQueryRequest.getSpaceLevel();
+        Integer spaceType = spaceQueryRequest.getSpaceType();
+        String sortField = spaceQueryRequest.getSortField();
+        String sortOrder = spaceQueryRequest.getSortOrder();
+        // 拼接查询条件
+        queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
+        queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
+        queryWrapper.like(StrUtil.isNotBlank(spaceName), "spaceName", spaceName);
+        queryWrapper.eq(ObjUtil.isNotEmpty(spaceLevel), "spaceLevel", spaceLevel);
+        queryWrapper.eq(ObjUtil.isNotEmpty(spaceType), "spaceType", spaceType);
+        // 排序
+        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+        return queryWrapper;
     }
 
 

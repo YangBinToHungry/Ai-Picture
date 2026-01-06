@@ -1,9 +1,14 @@
 package com.thinkdifferent.aipicturebackend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceAddRequest;
+import com.thinkdifferent.aipicturebackend.model.dto.space.SpaceQueryRequest;
 import com.thinkdifferent.aipicturebackend.model.entity.Space;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.thinkdifferent.aipicturebackend.model.entity.User;
+import com.thinkdifferent.aipicturebackend.model.vo.SpaceVO;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author yangbin
@@ -29,4 +34,15 @@ public interface SpaceService extends IService<Space> {
      * @param space
      */
     void fillSpaceBySpaceLevel(Space space);
+
+    /**
+     * 判断空间权限
+     * @param loginUser
+     * @param space
+     */
+    void checkSpaceAuth(User loginUser, Space space);
+
+    SpaceVO getSpaceVO(Space space, HttpServletRequest request);
+
+    QueryWrapper<Space> getQueryWrapper(SpaceQueryRequest spaceQueryRequest);
 }
