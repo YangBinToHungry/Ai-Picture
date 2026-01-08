@@ -9,7 +9,7 @@
       </a-layout-content>
       <a-layout-footer class="footer">
         <a href="#" target="_blank">
-          智能云图库系统 ©2025 Created by YangBin. All Rights Reserved.
+          智能AI云图库系统 ©2025 Created by YangBin. All Rights Reserved.
         </a>
       </a-layout-footer>
 

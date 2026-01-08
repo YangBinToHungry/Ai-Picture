@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import UserManagePage from '../pages/admin/UserManagePage.vue'
 import PictureManagePage from '../pages/admin/PictureManagePage.vue'
+import SpaceManagePage from '../pages/admin/SpaceManagePage.vue'
 import UserLoginPage from '../pages/user/UserLoginPage.vue'
 import UserRegisterPage from '../pages/user/UserRegisterPage.vue'
 import HomePage from '@/pages/HomePage.vue'
@@ -81,6 +82,15 @@ const router = createRouter({
       meta: {
         hideInMenu: true,
       }
+    },
+    {
+      path: '/admin/spaceManage',
+      name: '空间管理',
+      component: SpaceManagePage,
+      meta: {
+        access: ACCESS_ENUM.ADMIN,
+        order: 5
+      },
     }
   ],
 
