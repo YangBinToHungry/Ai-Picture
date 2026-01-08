@@ -8,6 +8,7 @@ import HomePage from '@/pages/HomePage.vue'
 import AddPicturePage from '@/pages/AddPicturePage.vue'
 import AddPictureBatchPage from '@/pages/AddPictureBatchPage.vue'
 import PictureDetailPage from '@/pages/PictureDetailPage.vue'
+import AddSpacePage from '@/pages/space/AddSpacePage.vue'
 import ACCESS_ENUM from "@/access/accessEnum";
 import {HomeOutlined} from '@ant-design/icons-vue'
 
@@ -91,9 +92,16 @@ const router = createRouter({
         access: ACCESS_ENUM.ADMIN,
         order: 5
       },
-    }
+    },
+    {
+      path: '/add_space',
+      name: '创建空间',
+      component: AddSpacePage,
+      meta: {
+        hideInMenu: true,
+      }
+    },
   ],
-
 })
 
 export default router

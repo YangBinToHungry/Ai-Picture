@@ -8,11 +8,8 @@
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="#" target="_blank">
-          智能AI云图库系统 ©2025 Created by YangBin. All Rights Reserved.
-        </a>
+        <a href="#" target="_blank">智能AI云图库系统 ©2025 Created by YangBin. All Rights Reserved.</a>
       </a-layout-footer>
-
     </a-layout>
   </div>
 </template>
@@ -47,6 +44,4 @@ import GlobalHeader from "@/components/GlobalHeader.vue";
   right: 0;
   text-align: center;
 }
-
-
 </style>

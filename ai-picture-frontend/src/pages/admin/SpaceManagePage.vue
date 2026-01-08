@@ -26,11 +26,11 @@
     <template #bodyCell="{ column, record }">
       <!-- 空间级别 -->
       <template v-if="column.dataIndex === 'spaceLevel'">
-        <a-tag>{{ SPACE_LEVEL_MAP[record.spaceLevel] }}</a-tag>
+        <a-tag>{{SPACE_LEVEL_MAP[record.spaceLevel]}}</a-tag>
       </template>
       <!-- 使用情况 -->
       <template v-if="column.dataIndex === 'spaceUseInfo'">
-        <div>大小：{{ formatSize(record.totalSize) }} / {{ formatSize(record.maxSize) }}</div>
+        <div>大小：{{ formatSize(record.totalSize) }} / {{formatSize(record.maxSize) }}</div>
         <div>数量：{{ record.totalCount }} / {{ record.maxCount }}</div>
       </template>
       <!-- 创建时间 -->
@@ -57,6 +57,10 @@
 import {computed, onMounted, reactive, ref} from "vue";
 import {message} from "ant-design-vue";
 import {listSpaceByPageUsingPost} from "@/api/spaceController";
+import {SPACE_LEVEL_ENUM, SPACE_LEVEL_MAP,SPACE_LEVEL_OPTIONS} from "@/constants/space";
+import dayjs from "dayjs";
+import { formatSize } from '@/utils/index';
+
 
 // 数据
 const dataList = ref([])
