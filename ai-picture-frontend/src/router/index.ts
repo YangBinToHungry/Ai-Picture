@@ -5,9 +5,9 @@ import SpaceManagePage from '../pages/admin/SpaceManagePage.vue'
 import UserLoginPage from '../pages/user/UserLoginPage.vue'
 import UserRegisterPage from '../pages/user/UserRegisterPage.vue'
 import HomePage from '@/pages/HomePage.vue'
-import AddPicturePage from '@/pages/AddPicturePage.vue'
-import AddPictureBatchPage from '@/pages/AddPictureBatchPage.vue'
-import PictureDetailPage from '@/pages/PictureDetailPage.vue'
+import AddPicturePage from '@/pages/picture/AddPicturePage.vue'
+import AddPictureBatchPage from '@/pages/picture/AddPictureBatchPage.vue'
+import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
 import AddSpacePage from '@/pages/space/AddSpacePage.vue'
 import MySpacePage from '@/pages/space/MySpacePage.vue'
 import ACCESS_ENUM from "@/access/accessEnum";
@@ -106,6 +106,12 @@ const router = createRouter({
       path: '/my_space',
       name: '我的空间',
       component: MySpacePage,
+    },
+    {
+      path: '/space/:id',
+      name: '空间详情',
+      component: SpaceDetailPage,
+      props: true,
     },
   ],
 })
