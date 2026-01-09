@@ -9,6 +9,7 @@ import AddPicturePage from '@/pages/AddPicturePage.vue'
 import AddPictureBatchPage from '@/pages/AddPictureBatchPage.vue'
 import PictureDetailPage from '@/pages/PictureDetailPage.vue'
 import AddSpacePage from '@/pages/space/AddSpacePage.vue'
+import MySpacePage from '@/pages/space/MySpacePage.vue'
 import ACCESS_ENUM from "@/access/accessEnum";
 import {HomeOutlined} from '@ant-design/icons-vue'
 
@@ -100,6 +101,11 @@ const router = createRouter({
       meta: {
         hideInMenu: true,
       }
+    },
+    {
+      path: '/my_space',
+      name: '我的空间',
+      component: MySpacePage,
     },
   ],
 })
