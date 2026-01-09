@@ -10,6 +10,7 @@ import AddPictureBatchPage from '@/pages/picture/AddPictureBatchPage.vue'
 import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
 import AddSpacePage from '@/pages/space/AddSpacePage.vue'
 import MySpacePage from '@/pages/space/MySpacePage.vue'
+import SpaceDetailPage from '@/pages/space/SpaceDetailPage.vue'
 import ACCESS_ENUM from "@/access/accessEnum";
 import {HomeOutlined} from '@ant-design/icons-vue'
 

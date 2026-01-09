@@ -15,6 +15,10 @@
 </template>
 
 <script>
+import {onMounted, reactive} from "vue";
+import {getSpaceVoByIdUsingGet} from "@/api/spaceController.js";
+import {listPictureVoByPageUsingPost} from "@/api/pictureController.js";
+
 const props = defineProps<{
   id: string | number
 }>()
