@@ -14,14 +14,14 @@
   <a-pagination style="text-align: right" v-model:current="searchParams.current" v-model:pageSize="searchParams.pageSize" :total="total" :show-total="() => `图片总数 ${total} / ${space.maxCount}`" @change="onPageChange"/>
 </template>
 
-<script>
-import {onMounted, reactive} from "vue";
+<script lang="ts" setup>
+import {onMounted, reactive, ref} from "vue";
 import {getSpaceVoByIdUsingGet} from "@/api/spaceController.js";
 import {listPictureVoByPageUsingPost} from "@/api/pictureController.js";
+import { formatSize } from '@/utils/index';
+import {message} from "ant-design-vue";
 
-const props = defineProps<{
-  id: string | number
-}>()
+const props = defineProps<{ id: string | number }>()
 const space = ref<API.SpaceVO>({})
 
 // 获取空间详情
