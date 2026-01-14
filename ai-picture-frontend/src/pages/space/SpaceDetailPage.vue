@@ -20,6 +20,7 @@ import {getSpaceVoByIdUsingGet} from "@/api/spaceController.js";
 import {listPictureVoByPageUsingPost} from "@/api/pictureController.js";
 import { formatSize } from '@/utils/index';
 import {message} from "ant-design-vue";
+import PictureList from '@/pages/picture/PictureList.vue';
 
 const props = defineProps<{ id: string | number }>()
 const space = ref<API.SpaceVO>({})
