@@ -10,7 +10,7 @@
     </a-space>
   </a-flex>
   <!-- 图片列表 -->
-  <PictureList :dataList="dataList" :loading="loading" />
+  <PictureList :dataList="dataList" :loading="loading" :showOp="true" :onReload="fetchData"/>
   <a-pagination style="text-align: right" v-model:current="searchParams.current" v-model:pageSize="searchParams.pageSize" :total="total" :show-total="() => `图片总数 ${total} / ${space.maxCount}`" @change="onPageChange"/>
 </template>
 
