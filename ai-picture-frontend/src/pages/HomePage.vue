@@ -39,12 +39,13 @@ const dataList = ref([])
 const total = ref(0)
 const loading = ref(true)
 
-// 搜索条件
+// 搜索条件:主页不显示个人空间图片
 const searchParams = reactive<API.PictureQueryRequest>({
   current: 1,
   pageSize: 12,
   sortField: 'createTime',
   sortOrder: 'descend',
+  nullSpaceId:true
 })
 // 分页参数
 const pagination = computed(() => {
