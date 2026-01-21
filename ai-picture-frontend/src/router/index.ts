@@ -47,7 +47,6 @@ const router = createRouter({
       name: '创建图片',
       component: AddPicturePage,
       meta: {
-        access: ACCESS_ENUM.ADMIN,
         order: 2
       },
     },
