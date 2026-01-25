@@ -38,7 +38,10 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
+import {message} from "ant-design-vue";
+import {listPictureTagCategoryUsingGet} from "@/api/pictureController";
+import dayjs from "dayjs";
 
 // 子组件接收搜索条件
 interface Props {
@@ -68,6 +71,35 @@ const rangePresets = ref([
   { label: '过去 30 天', value: [dayjs().add(-30, 'd'), dayjs()] },
   { label: '过去 90 天', value: [dayjs().add(-90, 'd'), dayjs()] },
 ])
+
+const categoryOptions = ref<string[]>([])
+const tagOptions = ref<string[]>([])
+
+// 获取标签和分类选项
+const getTagCategoryOptions = async () => {
+  const res = await listPictureTagCategoryUsingGet()
+  if (res.data.code === 0 && res.data.data) {
+    // 转换成下拉选项组件接受的格式
+    tagOptions.value = (res.data.data.tagList ?? []).map((data: string) => {
+      return {
+        value: data,
+        label: data,
+      }
+    })
+    categoryOptions.value = (res.data.data.categoryList ?? []).map((data: string) => {
+      return {
+        value: data,
+        label: data,
+      }
+    })
+  } else {
+    message.error('加载选项失败，' + res.data.message)
+  }
+}
+onMounted(() => {
+  getTagCategoryOptions()
+})
+
 
 
 
