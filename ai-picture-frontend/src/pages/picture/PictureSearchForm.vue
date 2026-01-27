@@ -30,7 +30,10 @@
         <a-input v-model:value="searchParams.picFormat" placeholder="请输入格式" allow-clear />
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 96px">搜索</a-button>
+        <a-space>
+          <a-button type="primary" html-type="submit" style="width: 96px">搜索</a-button>
+          <a-button html-type="reset" @click="doClear">重置</a-button>
+        </a-space>
       </a-form-item>
     </a-form>
   </div>
@@ -43,18 +46,18 @@ import {message} from "ant-design-vue";
 import {listPictureTagCategoryUsingGet} from "@/api/pictureController";
 import dayjs from "dayjs";
 
-// 子组件接收搜索条件
+// 父组件传onSearch方法；子组件传搜索参数
 interface Props {
   onSearch?: (searchParams: API.PictureQueryRequest) => void
 }
 const props = defineProps<Props>()
-// 获取搜索数据
+// 获取搜索数据；调用父组件onSearch方法
 const searchParams = reactive<API.PictureQueryRequest>({})
 const doSearch = () => {
   props.onSearch?.(searchParams)
 }
-const dateRange = ref<[]>([])
 // 日期范围更改时触发
+const dateRange = ref<[]>([])
 const onRangeChange = (dates: any[], dateStrings: string[]) => {
   if (dates.length < 2) {
     searchParams.startEditTime = undefined
@@ -100,11 +103,20 @@ onMounted(() => {
   getTagCategoryOptions()
 })
 
-
-
-
+// 清理
+const doClear = () => {
+  // 取消所有对象的值
+  Object.keys(searchParams).forEach((key) => {
+    searchParams[key] = undefined
+  })
+  dateRange.value = []
+  props.onSearch?.(searchParams)
+}
 </script>
 
 <style scoped>
-
+/*搜索条件行间的间距*/
+.picture-search-form .ant-form-item {
+  margin-top: 16px;
+}
 </style>
