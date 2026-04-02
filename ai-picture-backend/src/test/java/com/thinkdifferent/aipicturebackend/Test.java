@@ -14,5 +14,7 @@ public class Test {
         System.out.println("\n使用trim(): '" + test.trim() + "'"+"字符串长度："+test.trim().length());
         System.out.println("使用trimAllSpaces(): '" + UniversalSpaceRemover.trimAllSpaces(test) + "'"+"字符串长度："+UniversalSpaceRemover.trimAllSpaces(test).length());
         System.out.println("使用removeAllSpaces(): '" + UniversalSpaceRemover.removeAllSpaces(test) + "'"+"字符串长度："+UniversalSpaceRemover.removeAllSpaces(test).length());
+        String[] arr = "N//1".split("/");
+        System.out.println("arr的值为： "+arr.toString());
     }
 }
