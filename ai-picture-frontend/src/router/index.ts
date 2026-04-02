@@ -11,6 +11,7 @@ import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
 import AddSpacePage from '@/pages/space/AddSpacePage.vue'
 import MySpacePage from '@/pages/space/MySpacePage.vue'
 import SpaceDetailPage from '@/pages/space/SpaceDetailPage.vue'
+import SearchPicturePage from '@/pages/picture/SearchPicturePage.vue'
 import ACCESS_ENUM from "@/access/accessEnum";
 import {HomeOutlined} from '@ant-design/icons-vue'
 
@@ -119,6 +120,14 @@ const router = createRouter({
         hideInMenu: true,
       }
     },
+    {
+      path: '/search_picture',
+      name: '图片搜索',
+      component: SearchPicturePage,
+      meta: {
+        hideInMenu: true,
+      }
+    }
   ],
 })
 
