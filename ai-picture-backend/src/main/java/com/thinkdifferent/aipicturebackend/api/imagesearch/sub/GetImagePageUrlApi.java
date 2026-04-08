@@ -38,7 +38,7 @@ public class GetImagePageUrlApi {
             // 2. 发送 POST 请求到百度接口
             HttpResponse response = HttpRequest.post(url)
                     .form(formData)
-                    .timeout(5000)
+                    .timeout(30000)
                     .execute();
             // 判断响应状态
             if (HttpStatus.HTTP_OK != response.getStatus()) {
