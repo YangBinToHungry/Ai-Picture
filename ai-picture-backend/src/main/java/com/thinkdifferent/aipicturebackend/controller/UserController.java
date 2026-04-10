@@ -9,12 +9,14 @@ import com.thinkdifferent.aipicturebackend.constant.UserConstant;
 import com.thinkdifferent.aipicturebackend.exception.BusinessException;
 import com.thinkdifferent.aipicturebackend.exception.ErrorCode;
 import com.thinkdifferent.aipicturebackend.exception.ThrowUtils;
+import com.thinkdifferent.aipicturebackend.jwt.JwtUtil;
 import com.thinkdifferent.aipicturebackend.model.dto.user.*;
 import com.thinkdifferent.aipicturebackend.model.entity.User;
 import com.thinkdifferent.aipicturebackend.model.vo.LoginUserVO;
 import com.thinkdifferent.aipicturebackend.model.vo.UserVO;
 import com.thinkdifferent.aipicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,6 +28,8 @@ import java.util.List;
 public class UserController {
     @Resource
     private UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     /**
      * 用户注册
@@ -54,6 +58,8 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
+        String token = jwtUtil.generateToken(userAccount);
+        loginUserVO.setToken(token);
         return ResultUtils.success(loginUserVO);
     }
 

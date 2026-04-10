@@ -48,6 +48,11 @@ public class LoginUserVO implements Serializable {
      */
     private Date updateTime;
 
+    /**
+     * 用户访问令牌token
+     */
+    private String token;
+
     private static final long serialVersionUID = 1L;
 }
 

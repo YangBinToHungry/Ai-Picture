@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -22,18 +23,25 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtFilter;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("SecurityFilter过滤器开始");
-        http.csrf().disable()
-            .formLogin().disable()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            .antMatchers("/api/user/get/login").permitAll();
-//            .anyRequest().authenticated();
+        http
+                .csrf().disable()
+                .cors().and()
+                .formLogin().disable()
+                .httpBasic().disable()
+                // 无状态
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                // 放行预检请求
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // 放行登录
+                .antMatchers("/user/get/login","/picture/list/page/vo/cache","/picture/tag_category","/user/login","/user/logout").permitAll()
+                // 其他必须登录认证
+                .anyRequest().authenticated();
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        log.info("SecurityFilter过滤器结束");
+
         return http.build();
     }
 }

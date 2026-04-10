@@ -2,6 +2,8 @@ package com.thinkdifferent.aipicturebackend.jwt;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -53,12 +56,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
             } catch (Exception e) {
-                // token异常可选择返回401
-                log.error("Jwt Token 认证异常", e);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
         }
 
         filterChain.doFilter(request, response);
-        log.info("JwtAuthenticationFilter 过滤器放行成功");
     }
 }
