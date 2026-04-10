@@ -88,6 +88,11 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <!-- JJWT API: 接口定义，编译时需要 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
