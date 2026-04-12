@@ -36,7 +36,7 @@ public class SecurityConfig {
                 // 放行预检请求
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 放行登录
-                .antMatchers("/user/get/login","/picture/list/page/vo/cache","/picture/tag_category","/user/login","/user/logout").permitAll()
+                .antMatchers("/user/get/login","/picture/list/page/vo/cache","/picture/tag_category","/user/login","/user/logout","/v2/api-docs").permitAll()
                 // 其他必须登录认证
                 .anyRequest().authenticated();
 
