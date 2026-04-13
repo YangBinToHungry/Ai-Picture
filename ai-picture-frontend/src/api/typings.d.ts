@@ -166,6 +166,7 @@ declare namespace API {
     userName?: string
     userProfile?: string
     userRole?: string
+    token?: string
   }
 
   type PagePicture_ = {
