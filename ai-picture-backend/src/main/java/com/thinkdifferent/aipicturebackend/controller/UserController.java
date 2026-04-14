@@ -58,7 +58,7 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
-        String token = jwtUtil.generateToken(userAccount);
+        String token = jwtUtil.generateToken(String.valueOf(loginUserVO.getId()));
         loginUserVO.setToken(token);
         return ResultUtils.success(loginUserVO);
     }
