@@ -52,6 +52,7 @@ const handleSubmit = async (values: any) => {
     await loginUserStore.fetchLoginUser()
     localStorage.setItem("token", res.data.data.token);
     message.success('登录成功')
+    // 跳转到首页
     router.push({
       path: '/',
       replace: true,
