@@ -55,17 +55,21 @@ import checkAccess from "@/access/checkAccess";
 import {userLogoutUsingGet} from "@/api/userController";
 
 const doLogout = async () => {
-  const res = await userLogoutUsingGet()
-  console.log(res)
-  if (res.data.code === 0) {
-    loginUserStore.setLoginUser({
-      userName: '未登录',
-    })
-    message.success('退出登录成功')
-    await router.push('/user/login')
-  } else {
-    message.error('退出登录失败，' + res.data.message)
-  }
+  // const res = await userLogoutUsingGet()
+  // console.log(res)
+  // if (res.data.code === 0) {
+  //   loginUserStore.setLoginUser({
+  //     userName: '未登录',
+  //   })
+  //   message.success('退出登录成功')
+  //   await router.push('/user/login')
+  // } else {
+  //   message.error('退出登录失败，' + res.data.message)
+  // }
+  //JWT技术：无登录状态
+  localStorage.removeItem("token");
+  message.success('退出登录成功')
+  await router.push('/user/login')
 }
 
 const loginUserStore = useLoginUserStore()
