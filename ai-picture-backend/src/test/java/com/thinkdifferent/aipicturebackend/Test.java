@@ -2,6 +2,8 @@ package com.thinkdifferent.aipicturebackend;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 @SpringBootTest
 public class Test {
     @org.junit.jupiter.api.Test
@@ -16,5 +18,6 @@ public class Test {
         System.out.println("使用removeAllSpaces(): '" + UniversalSpaceRemover.removeAllSpaces(test) + "'"+"字符串长度："+UniversalSpaceRemover.removeAllSpaces(test).length());
         String[] arr = "N//1".split("/");
         System.out.println("arr的值为： "+arr.toString());
+
     }
 }
